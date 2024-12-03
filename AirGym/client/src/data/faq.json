@@ -1,0 +1,20 @@
+{
+  "faqs": [
+    {
+      "question": "What is a virtual gym?",
+      "answer": "A virtual gym offers fitness training and exercise classes online through live streams or on-demand videos, allowing you to work out from anywhere."
+    },
+    {
+      "question": "How do I sign up for classes?",
+      "answer": "You can sign up for classes by visiting our website, selecting the desired class, and completing the registration process. You will receive a confirmation email with further instructions."
+    },
+    {
+      "question": "What equipment do I need?",
+      "answer": "Basic equipment such as a yoga mat, resistance bands, and dumbbells is recommended. Specific classes may require additional equipment, which will be listed in the class description."
+    },
+    {
+      "question": "Are the classes live or pre-recorded?",
+      "answer": "We offer both live and pre-recorded classes. Live classes provide real-time interaction with the instructor, while pre-recorded sessions allow you to work out at your own pace."
+    }
+  ]
+}

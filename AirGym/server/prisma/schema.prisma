@@ -1,0 +1,310 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  COACH
+  ADMIN
+  DELETED
+}
+
+enum CoachStatus {
+  NOT_SUBMITTED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum Status {
+  PENDING
+  RESERVED
+  ACCEPTED
+  CANCELLED
+  FINISHED
+}
+
+enum Experience {
+  BELOW_1_YEAR
+  ONE_TO_THREE_YEARS
+  THREE_TO_FIVE_YEARS
+  ABOVE_FIVE_YEARS
+}
+
+enum PaymentType {
+  SESSION
+  WITHDRAWAL
+  CANCELLED_SESSION
+}
+
+enum PaymentStatus {
+  PENDING
+  AVAILABLE
+  FINISHED
+}
+
+enum SessionType {
+  ONLINE
+  OFFLINE
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  username      String    @unique
+  email         String    @unique
+  phoneNumber   String    @unique
+  firstName     String
+  lastName      String
+  password      String
+  profileImage  String  @default("/uploads/users/default.svg")
+  emailVerified DateTime?
+  role          Role      @default(CLIENT)
+  coach         Coach?
+
+  receiver Conversation[] @relation(name: "receiver")
+  sender Conversation[] @relation(name: "sender")
+  post          Post[]
+  comment       Comment[]
+  session       Session[]
+  like          Like[]
+  figureDetails FigureDetails[]
+  issues        Issue[]
+  feedbacks     Feedback[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model VerificationCodes {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  code      String    @unique
+  email     String    @unique
+  expires   DateTime
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+}
+
+model PasswordResetCode {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  code      String    @unique
+  email     String    @unique
+  expires   DateTime
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Coach {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @unique @db.ObjectId
+  birthday      DateTime?
+  address       String?
+  idNumber      String?
+  oneSessionFee   Float?
+  startTimeSlot Int   @default(8)
+  endTimeSlot   Int   @default(17)
+  experience    Experience?
+  description   String?
+  idFrontImage  String?
+  idBackImage   String?
+  cameraImage   String?
+  ratings        Float   @default(0)
+  availableForWithdrawal Float @default(0)
+  certificate    String[] @default([])
+  coachVerified CoachStatus @default(NOT_SUBMITTED)
+
+  sessions      Session[]
+
+  user      User      @relation(fields: [userId], references: [id])
+  paymentAccount PaymentAccount?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  Withdrawals Withdrawals[]
+}
+
+model PaymentAccount {
+  id                  String    @id @default(auto()) @map("_id") @db.ObjectId
+  coachId             String    @unique @db.ObjectId
+  accountNumber       String
+  accountHolderName   String
+  nameOfBank          String
+  branch              String
+
+  coach      Coach      @relation(fields: [coachId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Post {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  image     String?
+  authorId  String @db.ObjectId
+
+  author    User      @relation(fields: [authorId], references: [id])
+  comments  Comment[]
+  likes     Like[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Comment {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  postId    String @db.ObjectId
+  authorId  String @db.ObjectId
+
+  post      Post      @relation(fields: [postId], references: [id] , onDelete: Cascade)
+  author    User      @relation(fields: [authorId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Like {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  postId    String @db.ObjectId
+  userId    String @db.ObjectId
+
+  post      Post      @relation(fields: [postId], references: [id] , onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Session {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  coachId     String @db.ObjectId
+  userId      String @db.ObjectId
+  date        DateTime
+  timeSlot    Int
+  status      Status @default(PENDING)
+  review      String?
+  rating      Int?
+  link       String?
+
+  payment     Payment?
+
+  coach       Coach      @relation(fields: [coachId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Payment{
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  sessionId   String?    @db.ObjectId @unique
+  paymentId   String
+  amount      Float
+  fee         Float
+  remaining   Float
+  type        PaymentType @default(SESSION)
+  status      PaymentStatus @default(PENDING)
+
+  session     Session?      @relation(fields: [sessionId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Withdrawals {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  coachId     String @db.ObjectId
+  amount      Float
+  status      PaymentStatus @default(PENDING)
+
+  coach       Coach      @relation(fields: [coachId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model FigureDetails {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String @db.ObjectId
+  shoulders   Float
+  chest       Float
+  neck        Float
+  biceps      Float
+  thigh       Float
+  calf        Float
+  waist       Float
+  hip         Float
+  forearm     Float
+  height      Float
+  weight      Float
+
+  user        User      @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// models for chat box 
+model Message {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String @db.ObjectId
+  message     String
+  sender      String 
+  receiver    String
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Conversation {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  senderId    String @db.ObjectId
+  receiverId  String @db.ObjectId
+
+  sender      User      @relation(name: "sender" , fields: [senderId], references: [id])
+  receiver    User      @relation(name: "receiver", fields: [receiverId], references: [id])
+
+  messages    Message[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Issue {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  issueId     Int       @unique
+  userId      String    @db.ObjectId
+  issue       String
+  response       String?
+  isAdminRead Boolean @default(false)
+  isUserRead  Boolean @default(true)
+
+  user        User      @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+
+model Feedback {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String    @db.ObjectId
+  feedback    String
+
+  user        User      @relation(fields: [userId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}

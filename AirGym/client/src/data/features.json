@@ -1,0 +1,21 @@
+{
+  "features": [
+    {
+      "title": "Online Sessions Scheduling",
+      "content": "Clients can browse and select a coach based on various criteria such as charges, ratings, and experience level. The platform allows clients to request online sessions with their chosen coach and offers the flexibility to cancel sessions if needed. This ensures personalized guidance and convenience."
+    },
+    {
+      "title": "Progress Monitoring",
+      "content": "Clients can input body measurements such as height, weight, and body dimensions into the system. This data is then used to track and display progress over time, shown as a percentage. This feature helps clients stay motivated and see tangible results from their efforts."
+    },
+    {
+      "title": "Community Engagement",
+      "content": "Users can share their success stories, progress photos, and insights related to workouts and health in the feed section. This feature encourages community engagement as users can comment on and like each other's posts, fostering a supportive and motivating environment."
+    },
+    {
+      "title": "Ensure User Security",
+      "content": "The platform prioritizes the security and privacy of user data through robust sign-in and sign-up processes. Implementing email verification helps maintain the integrity of user accounts, ensuring that only authorized users can access their personal information and interact on the platform."
+    }
+  ]
+  
+}
